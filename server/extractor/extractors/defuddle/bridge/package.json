@@ -1,0 +1,22 @@
+{
+	"name": "defuddle-bridge",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "JSON stdin/stdout wrapper around defuddle for the Hister extractor.",
+	"license": "AGPL-3.0-or-later",
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"test": "node test.mjs",
+		"build": "bash build.sh"
+	},
+	"dependencies": {
+		"defuddle": "^0.19.4",
+		"linkedom": "^0.18.12"
+	},
+	"devDependencies": {
+		"esbuild": "^0.28.1"
+	}
+}
