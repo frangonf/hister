@@ -82,10 +82,11 @@ FROM oven/bun:1.2-alpine@sha256:0841c588f6304300baf1d395ae339ce09a6e18c4b6a7cdd4
 ARG TARGETARCH=amd64
 
 WORKDIR /src
-# Dependencies are exact-pinned in package.json so the lockfile-free bun
-# install stays reproducible; the npm lockfile covers the node/esbuild path.
-COPY server/extractor/extractors/defuddle/bridge/package.json ./
-RUN bun install --production
+# The Bun lockfile pins the production dependency graph used by the compiled
+# bridge; package-lock.json covers the Node/esbuild development path.
+COPY server/extractor/extractors/defuddle/bridge/package.json \
+     server/extractor/extractors/defuddle/bridge/bun.lock ./
+RUN bun install --production --frozen-lockfile
 COPY server/extractor/extractors/defuddle/bridge/index.mjs ./
 RUN set -eux; \
     case "$TARGETARCH" in \
