@@ -13,8 +13,8 @@
 		"build": "bash build.sh"
 	},
 	"dependencies": {
-		"defuddle": "^0.19.4",
-		"linkedom": "^0.18.12"
+		"defuddle": "0.19.4",
+		"linkedom": "0.18.13"
 	},
 	"devDependencies": {
 		"esbuild": "^0.28.1"

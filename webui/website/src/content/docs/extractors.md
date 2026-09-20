@@ -64,6 +64,27 @@ description: 'Understand and configure the built in content handlers used for in
       description: 'Additional domains to match this extractor. They should take the form "domain.tld", e.g. "vimeo.com". Check the yt-dlp repository for a full list of supported sites.'
     }
   ];
+
+  const defuddleOptions = [
+    {
+      name: 'binary',
+      type: 'string',
+      defaultValue: 'defuddle-bridge',
+      description: 'Path to the defuddle-bridge executable. Use this when the binary is not on PATH or to select a specific version.',
+    },
+    {
+      name: 'timeout',
+      type: 'int',
+      defaultValue: '10',
+      description: 'Seconds to wait for defuddle-bridge to finish before falling back to the next extractor.',
+    },
+    {
+      name: 'max_concurrent_jobs',
+      type: 'int',
+      defaultValue: '2',
+      description: 'Maximum number of defuddle-bridge processes running at once. Additional jobs wait for a slot. Set it to zero for no limit.',
+    },
+  ];
 </script>
 
 Extractors are the components responsible for turning raw HTML or file content
@@ -391,6 +412,38 @@ unsupported media content is ignored.
 `https://chatgpt.com/share/<conversation-id>` public shared, and
 `https://chatgpt.com/g/<gpt-id>/c/<conversation-id>` custom GPT conversation URLs
 (including `www.chatgpt.com`).
+
+### `defuddle`
+
+Generic article extractor backed by the [defuddle](https://github.com/kepano/defuddle)
+library, running as a separate `defuddle-bridge` binary. Removes navigation,
+ads, and other boilerplate before selecting the main content, which often
+produces cleaner text than Readability on modern, cluttered pages. Returns
+plain text for the index, sanitized HTML for previews, and author, publication
+date, site name, description, and image metadata. When extraction fails or
+returns too little content, the chain falls back to Readability.
+
+The extractor is **disabled by default** because it requires `defuddle-bridge`
+to be installed separately. The Docker image ships the binary at
+`/usr/local/bin/defuddle-bridge`.
+
+**Matches:** every page.
+
+#### Options
+
+<ConfigReference items={defuddleOptions} />
+
+#### Example configuration
+
+```yaml
+extractors:
+  defuddle:
+    enable: true
+    options:
+      binary: /usr/local/bin/defuddle-bridge
+      timeout: 30
+      max_concurrent_jobs: 2
+```
 
 ### `readability`
 
