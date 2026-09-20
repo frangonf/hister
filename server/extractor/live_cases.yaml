@@ -342,6 +342,25 @@ cases:
         - Big Buck Bunny
       min_preview_length: 100
 
+  - name: defuddle_wikipedia_article_http
+    url: https://en.wikipedia.org/wiki/Web_scraping
+    backend: http
+    extractor: Defuddle
+    requires_binary: defuddle-bridge
+    timeout: 30
+    run_chain: false
+    expect:
+      title_contains:
+        - Web scraping
+      text_contains:
+        - Web scraping
+      min_text_length: 1000
+      preview_contains:
+        - Web scraping
+      min_preview_length: 500
+      preview_not_contains:
+        - <script
+
   - name: readability_wikipedia_article_http
     url: https://en.wikipedia.org/wiki/Web_scraping
     backend: http
