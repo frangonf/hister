@@ -275,6 +275,9 @@ func (e *DefuddleExtractor) PreviewContext(ctx context.Context, d *sdk.Document)
 	if out.ContentHTML == "" {
 		return sdk.PreviewFallback(errors.New("defuddle-bridge returned no content"))
 	}
+	if out.WordCount < minWordCount {
+		return sdk.PreviewFallback(fmt.Errorf("defuddle-bridge returned only %d words", out.WordCount))
+	}
 	return sdk.Previewed(sdk.PreviewResponse{
 		Content: sanitizer.SanitizeHTML(out.ContentHTML),
 	})

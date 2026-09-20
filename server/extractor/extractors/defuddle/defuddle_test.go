@@ -146,6 +146,16 @@ func TestExtractFallsBackOnMissingBinary(t *testing.T) {
 	}
 }
 
+func TestPreviewFallsBackBelowWordThreshold(t *testing.T) {
+	e := newExtractor(t, map[string]any{"binary": buildStub(t)})
+	d := &document.Document{URL: "https://example.com/short", HTML: "<p>SHORTBRIDGE</p>"}
+
+	result := e.Preview(d)
+	if result.Decision() != sdk.ExtractorFallback {
+		t.Fatalf("decision = %v, want fallback", result.Decision())
+	}
+}
+
 func TestPreviewSanitizesContentHTML(t *testing.T) {
 	e := newExtractor(t, map[string]any{"binary": buildStub(t)})
 	d := &document.Document{URL: "https://example.com/script", HTML: "<p>SCRIPTBRIDGE</p>"}
