@@ -139,10 +139,10 @@ extractor is omitted from the config, its built-in defaults apply.
 
 Controls whether the extractor participates in the chain.
 
-| Value   | Effect                                                            |
-| ------- | ----------------------------------------------------------------- |
-| `true`  | Extractor is active. This is the default except for `ytdlp`.      |
-| `false` | Extractor is skipped for automatic indexing and preview selection |
+| Value   | Effect                                                                      |
+| ------- | --------------------------------------------------------------------------- |
+| `true`  | Extractor is active. This is the default except for `ytdlp` and `defuddle`. |
+| `false` | Extractor is skipped for automatic indexing and preview selection           |
 
 ### `options`
 
