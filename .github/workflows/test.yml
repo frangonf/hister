@@ -13,10 +13,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check for Go/frontend changes
+      - name: Check for test-relevant changes
         id: changes
         run: |
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.go' 'go.mod' 'go.sum' 'webui/**' 'package.json' 'package-lock.json')
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.go' 'go.mod' 'go.sum' 'webui/**' 'package.json' 'package-lock.json' 'server/extractor/extractors/defuddle/bridge/**')
           if [ -z "$FILES" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
@@ -38,6 +38,11 @@ jobs:
       - name: Build SPA
         if: steps.changes.outputs.skip != 'true'
         run: npm ci && sh webui/build.sh
+
+      - name: Test Defuddle bridge
+        if: steps.changes.outputs.skip != 'true'
+        working-directory: server/extractor/extractors/defuddle/bridge
+        run: npm ci && npm test && npm run build
 
       - name: Run Go tests
         if: steps.changes.outputs.skip != 'true'

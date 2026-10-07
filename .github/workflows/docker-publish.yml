@@ -9,6 +9,7 @@ on:
       - compose.yml
       - docker-bake.hcl
       - Dockerfile
+      - server/extractor/extractors/defuddle/bridge/**
       - go.mod
       - go.sum
       - '**/*.go'

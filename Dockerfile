@@ -74,6 +74,28 @@ RUN set -eux; \
     sha256sum -c /tmp/checksums; \
     chmod 0755 /usr/local/bin/yt-dlp
 
+# Compile the defuddle-bridge script into a standalone binary so the runtime
+# image needs no JavaScript runtime. Mirrors the ytdlp stage: defuddle
+# remains disabled by default and is enabled through extractor configuration.
+FROM oven/bun:1.2-alpine@sha256:0841c588f6304300baf1d395ae339ce09a6e18c4b6a7cdd4fddcbdb87a2f096a AS defuddle
+
+ARG TARGETARCH=amd64
+
+WORKDIR /src
+# The Bun lockfile pins the production dependency graph used by the compiled
+# bridge; package-lock.json covers the Node/esbuild development path.
+COPY server/extractor/extractors/defuddle/bridge/package.json \
+     server/extractor/extractors/defuddle/bridge/bun.lock ./
+RUN bun install --production --frozen-lockfile
+COPY server/extractor/extractors/defuddle/bridge/index.mjs ./
+RUN set -eux; \
+    case "$TARGETARCH" in \
+      amd64) target="bun-linux-x64-musl" ;; \
+      arm64) target="bun-linux-arm64-musl" ;; \
+      *) echo "unsupported TARGETARCH for defuddle-bridge: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    bun build index.mjs --compile --target="$target" --outfile=/out/defuddle-bridge
+
 # Put shared runtime content in one stage so release, root, and debug variants
 # reuse the same immutable layers in the registry and on container hosts.
 FROM alpine:3.24@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 AS runtime
@@ -87,9 +109,11 @@ WORKDIR /hister
 
 RUN adduser -D -u 65532 hister \
     && mkdir -p /hister/data \
-    && chown 65532:65532 /hister/data
+    && chown 65532:65532 /hister/data \
+    && apk add --no-cache libstdc++ libgcc
 
 COPY --link --from=ytdlp /usr/local/bin/yt-dlp /usr/local/bin/yt-dlp
+COPY --link --from=defuddle /out/defuddle-bridge /usr/local/bin/defuddle-bridge
 COPY --link --from=builder /out/hister /hister/hister
 
 ENV HISTER_DATA_DIR=/hister/data \
